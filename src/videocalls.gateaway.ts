@@ -6,14 +6,14 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ChatsRepository } from './chat/chats.repository'; // Adjust the import path as needed
+import { ChatsRepository } from './chat/chats.repository';
 import { Chat } from './chat/entities/chat.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Scope } from '@nestjs/common';
 
-@Injectable()
+@Injectable({ scope: Scope.DEFAULT })
 @WebSocketGateway({
   cors: {
-    origin: '*', // Enable CORS for all origins
+    origin: '*',
   },
 })
 export class VideoCallsGateway
@@ -21,9 +21,7 @@ export class VideoCallsGateway
 {
   @WebSocketServer() server: Server;
 
-  constructor(
-    private readonly chatsRepository: ChatsRepository, // Inject ChatsRepository
-  ) {}
+  constructor(private readonly chatsRepository: ChatsRepository) {}
 
   handleConnection(socket: Socket) {
     console.log('A user connected:', socket.id);
@@ -33,13 +31,16 @@ export class VideoCallsGateway
     console.log(`User disconnected: ${socket.id}`);
   }
 
-  notifyUserOnline(userId: string) {
-    console.log(`User ${userId} is now online`);
-    this.server.emit('userStatus', { id: userId, online: 'online' });
+  notifyUserOnline(user: any) {
+    const { id, name } = user;
+    console.log(`User ${id} is now online`);
+    this.server.emit('userStatus', { id: id, online: 'online', name: name });
   }
-  notifyUserOffline(userId: string) {
-    console.log(`User ${userId} is now offline`);
-    this.server.emit('userStatus', { id: userId, online: 'offline' });
+  notifyUserOffline(user: any) {
+    const { id, name } = user;
+
+    console.log(`User ${id} is now offline`);
+    this.server.emit('userStatus', { id: id, online: 'offline', name: name });
   }
 
   @SubscribeMessage('join')
@@ -77,14 +78,14 @@ export class VideoCallsGateway
     data: { username: string; room: string; message: string },
   ) {
     try {
-      const chatData = new Chat(); // Create an instance of Chat entity
+      const chatData = new Chat();
       chatData.username = data.username;
       chatData.room = data.room;
       chatData.message = data.message;
       chatData.timestamp = new Date();
 
-      await this.chatsRepository.saveChat(chatData); // Save the chat message using the repository
-      this.server.to(data.room).emit('chat', chatData); // Emit the chat message to the room
+      await this.chatsRepository.saveChat(chatData);
+      this.server.to(data.room).emit('chat', chatData);
     } catch (err) {
       console.error('Error saving message:', err);
     }

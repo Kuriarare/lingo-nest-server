@@ -26,7 +26,7 @@ export class AuthService {
     return newUser;
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: any) {
     if (!email || !password) {
       throw new BadRequestException('Email and password are required');
     }
@@ -42,7 +42,10 @@ export class AuthService {
 
     foundUser.online = 'online';
     await this.usersReository.save(foundUser);
-    this.videoCallsGateway.notifyUserOnline(foundUser.id);
+    this.videoCallsGateway.notifyUserOnline({
+      id: foundUser.id,
+      name: foundUser.name + ' ' + foundUser.lastName,
+    });
     const userPayload = { email: foundUser.email, id: foundUser.id };
     const token = this.jwtService.sign(userPayload);
     return { token, user: foundUser };
@@ -57,7 +60,10 @@ export class AuthService {
 
     foundUser.online = 'offline';
     await this.usersReository.save(foundUser);
-    this.videoCallsGateway.notifyUserOffline(foundUser.id);
+    this.videoCallsGateway.notifyUserOffline({
+      id: foundUser.id,
+      name: foundUser.name + ' ' + foundUser.lastName,
+    });
     return foundUser;
   }
 }
