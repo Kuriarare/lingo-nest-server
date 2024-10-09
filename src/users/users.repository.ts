@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Schedule, User } from './entities/user.entity'; // Ensure this imports Schedule correctly
+import { Schedule, User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -11,7 +11,7 @@ export class UsersRepository {
     private readonly usersRepository: Repository<User>,
 
     @InjectRepository(Schedule)
-    private readonly scheduleRepository: Repository<Schedule>, // Add this line
+    private readonly scheduleRepository: Repository<Schedule>,
   ) {}
 
   async findByEmail(email: string): Promise<User | undefined> {
@@ -22,7 +22,7 @@ export class UsersRepository {
         'teacher',
         'studentSchedules',
         'teacherSchedules',
-      ], // Adjust as needed
+      ],
     });
   }
 
@@ -34,7 +34,7 @@ export class UsersRepository {
         'teacher',
         'studentSchedules',
         'teacherSchedules',
-      ], // Adjust as needed
+      ],
     });
   }
 
@@ -77,7 +77,6 @@ export class UsersRepository {
   async assignStudent(body: any): Promise<any> {
     const { teacherId, studentId, events } = body;
 
-    // Fetch teacher and student with necessary relations
     const teacher = await this.usersRepository.findOne({
       where: { id: teacherId },
       relations: ['students', 'teacherSchedules'],
@@ -89,10 +88,10 @@ export class UsersRepository {
     });
 
     if (!teacher || teacher.role !== 'teacher') {
-      throw new Error('Teacher not found or not a teacher.');
+      throw new Error('Teacher not found.');
     }
     if (!student || student.role !== 'user') {
-      throw new Error('Student not found or not a student.');
+      throw new Error('Student not found.');
     }
 
     teacher.students.push(student);

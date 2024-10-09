@@ -88,7 +88,7 @@ export class Schedule {
   @Column({ type: 'varchar' })
   studentName: string;
 
-  @Column() // Store studentId directly
+  @Column()
   studentId: string;
 
   @ManyToOne(() => User, (student) => student.studentSchedules, {
@@ -97,7 +97,7 @@ export class Schedule {
   @JoinColumn({ name: 'studentId' })
   student: User;
 
-  @Column() // Store teacherId directly
+  @Column()
   teacherId: string;
 
   @ManyToOne(() => User, (teacher) => teacher.teacherSchedules, {

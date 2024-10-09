@@ -17,6 +17,4 @@ export class ScheduleRepository {
   async save(schedule: Schedule): Promise<Schedule> {
     return this.repository.save(schedule);
   }
-
-  // Add other methods as needed
 }
