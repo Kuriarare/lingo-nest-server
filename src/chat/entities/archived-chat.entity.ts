@@ -5,8 +5,8 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 
-@Entity('chats')
-export class Chat {
+@Entity('archived_chats')
+export class ArchivedChat {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -16,18 +16,15 @@ export class Chat {
   @Column({ type: 'varchar', length: 100 })
   email: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  avatarUrl?: string;
-
   @Column({ type: 'varchar', length: 100 })
   room: string;
 
   @Column({ type: 'text' })
   message: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  userUrl?: string;
-
   @CreateDateColumn({ type: 'timestamp' })
   timestamp: Date;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  archivedAt: Date;
 }

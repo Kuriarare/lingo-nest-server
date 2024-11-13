@@ -11,5 +11,6 @@ import { ScheduleRepository } from './schedule.repository';
 
   controllers: [UsersController],
   providers: [UsersService, UsersRepository, ScheduleRepository],
+  exports: [UsersRepository],
 })
 export class UsersModule {}

@@ -24,6 +24,9 @@ export class User {
   @Column({ type: 'varchar' })
   password: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  language: string;
+
   @Column({ type: 'enum', enum: ['online', 'offline'], default: 'offline' })
   online: string;
 
@@ -50,6 +53,12 @@ export class User {
 
   @Column({ type: 'enum', enum: ['user', 'teacher', 'admin'], default: 'user' })
   role: string;
+
+  @Column({ type: 'uuid', default: '123e4567-e89b-12d3-a456-426614174000' })
+  teachersRoom: string;
+
+  @Column({ type: 'uuid', default: '123e4567-e89b-12d3-a456-426614174001' })
+  generalChat: string;
 
   @OneToMany(() => Schedule, (schedule) => schedule.student)
   studentSchedules: Schedule[];

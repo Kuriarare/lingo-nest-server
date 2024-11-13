@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Lingolandias</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    .header {
+      background-color: #3a8dff;
+      color: #ffffff;
+      padding: 20px;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .content p {
+      font-size: 16px;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+    .content a {
+      color: #3a8dff;
+      text-decoration: none;
+    }
+    .footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      color: #777;
+    }
+
+    /* Responsive Styles */
+    @media only screen and (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+      .header h1 {
+        font-size: 20px;
+      }
+      .content p {
+        font-size: 14px;
+      }
+      .footer {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Welcome to Lingolandias!</h1>
+    </div>
+    <div class="content">
+      <p>Hello <%= name %>,</p>
+      <p>We're excited to have you join us at Lingolandias! Here are your login details:</p>
+      <p><strong>Email:</strong> <%= email %></p>
+      <p><strong>Password:</strong> <%= password %></p>
+      <p>You can log in to your account at <a href="https://lingolandias.com">lingolandias.com</a>.</p>
+      <p>We hope you enjoy your experience with us!</p>
+    </div>
+    <div class="footer">
+      <p>&copy; 2024 Lingolandias. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>

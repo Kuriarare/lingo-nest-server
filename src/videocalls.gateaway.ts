@@ -75,15 +75,24 @@ export class VideoCallsGateway
   @SubscribeMessage('chat')
   async handleChat(
     socket: Socket,
-    data: { username: string; room: string; message: string },
+    data: {
+      username: string;
+      email: string;
+      room: string;
+      message: string;
+      userUrl?: string;
+    },
   ) {
     try {
       const chatData = new Chat();
       chatData.username = data.username;
+      chatData.email = data.email;
       chatData.room = data.room;
       chatData.message = data.message;
       chatData.timestamp = new Date();
-
+      if (data.userUrl) {
+        chatData.userUrl = data.userUrl;
+      }
       await this.chatsRepository.saveChat(chatData);
       this.server.to(data.room).emit('chat', chatData);
     } catch (err) {

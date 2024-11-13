@@ -8,6 +8,7 @@ import { ScheduleRepository } from 'src/users/schedule.repository';
 import { VideoCallsGateway } from 'src/videocalls.gateaway';
 import { Chat } from 'src/chat/entities/chat.entity';
 import { ChatsRepository } from 'src/chat/chats.repository';
+import { MailService } from 'src/mail/mail.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Schedule, Chat])],
@@ -18,6 +19,7 @@ import { ChatsRepository } from 'src/chat/chats.repository';
     ScheduleRepository,
     VideoCallsGateway,
     ChatsRepository,
+    MailService,
   ],
 })
 export class AuthModule {}

@@ -137,4 +137,28 @@ export class UsersRepository {
     }
     return updatedUser;
   }
+
+  async updateUserProfileImage(
+    userId: string,
+    imageUrl: string,
+  ): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: [
+        'students',
+        'teacher',
+        'studentSchedules',
+        'teacherSchedules',
+      ],
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    user.avatarUrl = imageUrl;
+
+    const updatedUser = await this.usersRepository.save(user);
+    return updatedUser;
+  }
 }

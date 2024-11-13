@@ -3,6 +3,7 @@ import { UsersRepository } from 'src/users/users.repository';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { VideoCallsGateway } from 'src/videocalls.gateaway';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -10,19 +11,27 @@ export class AuthService {
     private readonly usersReository: UsersRepository,
     private readonly jwtService: JwtService,
     private readonly videoCallsGateway: VideoCallsGateway,
+    private readonly mailService: MailService,
   ) {}
 
   async register(newUser: any) {
     const foundUser = await this.usersReository.findByEmail(newUser.email);
-    console.log('Found user:', foundUser);
     if (foundUser) {
       throw new BadRequestException('User already exists');
     }
+
+    const unhasedPassword = newUser.password;
+
     const hashedPassword = await bcrypt.hash(newUser.password, 10);
     await this.usersReository.register({
       ...newUser,
       password: hashedPassword,
     });
+    await this.mailService.sendUserWelcomeEmail(
+      newUser.name,
+      newUser.email,
+      unhasedPassword,
+    );
     return newUser;
   }
 

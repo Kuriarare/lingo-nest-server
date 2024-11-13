@@ -8,12 +8,15 @@ import { AuthModule } from './auth/auth.module';
 import { ChatModule } from './chat/chat.module';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from './users/users.module';
+import { UploadFilesModule } from './upload-files/upload-files.module';
+import { MailModule } from './mail/mail.module';
+import mailConfig from './config/mail.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [TypeOrmConfig],
+      load: [TypeOrmConfig, mailConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -28,6 +31,8 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     ChatModule,
     UsersModule,
+    UploadFilesModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
