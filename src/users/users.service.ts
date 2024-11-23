@@ -1,9 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
+import { ScheduleRepository } from './schedule.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(
+    private readonly usersRepository: UsersRepository,
+    private readonly scheduleRepository: ScheduleRepository,
+    
+  ) {}
 
   async findAll() {
     const users = await this.usersRepository.findAll();
@@ -35,5 +40,21 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     return updatedUser;
+  }
+
+  async removeStudentsFromTeacher(body: any) {
+    const success = await this.usersRepository.removeStudentsFromTeacher(body);
+    if (!success) {
+      throw new NotFoundException('Schedule not found');
+    }
+    return success;
+  }
+
+  async modifySchedule(body: any) {
+    const success = await this.scheduleRepository.modifySchedule(body);
+    if (!success) {
+      throw new NotFoundException('Schedule not found');
+    }
+    return 'success';
   }
 }

@@ -60,16 +60,21 @@ export class User {
   @Column({ type: 'uuid', default: '123e4567-e89b-12d3-a456-426614174001' })
   generalChat: string;
 
-  @OneToMany(() => Schedule, (schedule) => schedule.student)
+  @OneToMany(() => Schedule, (schedule) => schedule.student, { nullable: true })
   studentSchedules: Schedule[];
 
-  @OneToMany(() => Schedule, (schedule) => schedule.teacher)
+  @OneToMany(() => Schedule, (schedule) => schedule.teacher, {
+    nullable: true,
+  })
   teacherSchedules: Schedule[];
 
   @OneToMany(() => User, (student) => student.teacher)
   students: User[];
 
-  @ManyToOne(() => User, (teacher) => teacher.students)
+  @ManyToOne(() => User, (teacher) => teacher.students, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'teacherId' })
   teacher: User;
 }
@@ -79,14 +84,34 @@ export class Schedule {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar' })
-  date: string;
+  // Store the initial date and time of the event in UTC
+  @Column({
+    type: 'timestamp',
+    transformer: {
+      from: (value) => (value ? new Date(value) : null), // Ensure valid date
+      to: (value) => (value instanceof Date ? value.toISOString() : null), // Handle valid Date
+    },
+  })
+  initialDateTime: Date;
 
-  @Column({ type: 'varchar' })
-  startTime: string;
+  // Store the start and end times of each occurrence in UTC
+  @Column({
+    type: 'timestamp',
+    transformer: {
+      from: (value) => (value ? new Date(value) : null), // Ensure valid date
+      to: (value) => (value instanceof Date ? value.toISOString() : null), // Handle valid Date
+    },
+  })
+  startTime: Date;
 
-  @Column({ type: 'varchar' })
-  endTime: string;
+  @Column({
+    type: 'timestamp',
+    transformer: {
+      from: (value) => (value ? new Date(value) : null), // Ensure valid date
+      to: (value) => (value instanceof Date ? value.toISOString() : null), // Handle valid Date
+    },
+  })
+  endTime: Date;
 
   @Column({ type: 'varchar' })
   dayOfWeek: string;
@@ -103,6 +128,10 @@ export class Schedule {
   @ManyToOne(() => User, (student) => student.studentSchedules, {
     nullable: false,
   })
+  @ManyToOne(() => User, (student) => student.studentSchedules, {
+    nullable: true,
+    onDelete: 'CASCADE', // Deletes schedules when the user is deleted
+  })
   @JoinColumn({ name: 'studentId' })
   student: User;
 
@@ -110,7 +139,8 @@ export class Schedule {
   teacherId: string;
 
   @ManyToOne(() => User, (teacher) => teacher.teacherSchedules, {
-    nullable: false,
+    nullable: true,
+    onDelete: 'CASCADE', // Deletes schedules when the teacher is deleted
   })
   @JoinColumn({ name: 'teacherId' })
   teacher: User;

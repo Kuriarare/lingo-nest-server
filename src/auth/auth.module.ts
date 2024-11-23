@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { Schedule, User } from 'src/users/entities/user.entity';
@@ -9,9 +9,10 @@ import { VideoCallsGateway } from 'src/videocalls.gateaway';
 import { Chat } from 'src/chat/entities/chat.entity';
 import { ChatsRepository } from 'src/chat/chats.repository';
 import { MailService } from 'src/mail/mail.service';
+import { GlobalChat } from 'src/chat/entities/global-chat.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Schedule, Chat])],
+  imports: [TypeOrmModule.forFeature([User, Schedule, Chat, GlobalChat])],
   controllers: [AuthController],
   providers: [
     AuthService,

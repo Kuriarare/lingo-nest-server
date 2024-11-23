@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Schedule, User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EntityManager } from 'typeorm';
+import { In } from 'typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
@@ -95,18 +97,21 @@ export class UsersRepository {
     }
 
     teacher.students.push(student);
-
     student.teacher = teacher;
 
+    // Ensure the `initialDateTime` field is populated
     const updatedEvents = events.map((event) => ({
       ...event,
-      student: student,
-      teacher: teacher,
-      studentId: studentId,
+      student,
+      teacher,
+      studentId,
+      teacherId,
+      startTime: new Date(event.start), // Save UTC start time
+      endTime: new Date(event.end), // Save UTC end time
+      initialDateTime: new Date(event.start), // Ensure this is populated as well
     }));
 
     const savedSchedules = await this.scheduleRepository.save(updatedEvents);
-
     teacher.teacherSchedules = [...teacher.teacherSchedules, ...savedSchedules];
     student.studentSchedules = [...student.studentSchedules, ...savedSchedules];
 
@@ -160,5 +165,70 @@ export class UsersRepository {
 
     const updatedUser = await this.usersRepository.save(user);
     return updatedUser;
+  }
+
+  async removeStudentsFromTeacher(body: any): Promise<any> {
+    const { teacherId, studentIds } = body;
+
+    // Fetch the teacher with necessary relations
+    const teacher = await this.usersRepository.findOne({
+      where: { id: teacherId },
+      relations: ['students', 'teacherSchedules'],
+    });
+
+    if (!teacher || teacher.role !== 'teacher') {
+      throw new Error('Teacher not found.');
+    }
+
+    // Fetch all the students to be removed
+    const students = await this.usersRepository.find({
+      where: { id: In(studentIds) },
+      relations: ['studentSchedules'],
+    });
+
+    if (!students || students.length === 0) {
+      throw new Error('No students found.');
+    }
+
+    // Try to remove schedules related to the teacher and the students
+    const deleteResult = await this.scheduleRepository.find({
+      where: {
+        teacherId: teacher.id,
+        studentId: In(studentIds), // Ensure both teacherId and studentId are in the same schedule
+      },
+    });
+    const idsToDelete = deleteResult.map((schedule) => schedule.id); // Get all the IDs to delete
+    if (idsToDelete.length > 0) {
+      console.log('This is the Schedule id', idsToDelete);
+      await this.scheduleRepository.delete(idsToDelete); // Directly delete by IDs
+      console.log('Schedules deleted');
+    }
+    // else {
+    //   throw new Error('No schedules found to delete.');
+    // }
+    // If no schedules were deleted, throw an error and stop further execution
+    // if (deleteResult.affected === 0) {
+    //   throw new Error('No schedules were deleted. Rolling back.');
+    // }
+    // console.log(deleteResult);
+
+    // Remove each student from the teacher's students array
+    teacher.students = teacher.students.filter(
+      (student) => !studentIds.includes(student.id),
+    );
+
+    // Remove the teacher reference from each student's teacher field
+    students.forEach((student) => {
+      student.teacher = null;
+    });
+
+    // Save updated teacher and students
+    await this.usersRepository.save(teacher);
+    await this.usersRepository.save(students);
+
+    return {
+      message:
+        'Students removed from teacher successfully, and schedules deleted.',
+    };
   }
 }

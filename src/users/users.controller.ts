@@ -6,6 +6,7 @@ import {
   Delete,
   HttpStatus,
   HttpCode,
+  Patch,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 // import { UpdateUserDto } from './dto/update-user.dto';
@@ -44,5 +45,18 @@ export class UsersController {
   remove(@Body() body: any) {
     const { email } = body;
     return this.usersService.remove(email);
+  }
+
+  @Post('removeStudentsFromTeacher')
+  @HttpCode(HttpStatus.OK)
+  removeStudentsFromTeacher(@Body() body: any) {
+    console.log(body);
+    return this.usersService.removeStudentsFromTeacher(body);
+  }
+
+  @Patch('modify-schedule')
+  @HttpCode(HttpStatus.OK)
+  async modifySchedule(@Body() body: any) {
+    return this.usersService.modifySchedule(body);
   }
 }

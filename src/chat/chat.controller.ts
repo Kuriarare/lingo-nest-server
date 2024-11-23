@@ -9,4 +9,9 @@ export class ChatController {
   async getChats(@Param('room') room: string) {
     return this.chatService.getChats(room);
   }
+
+  @Get('global-chats/:room')
+  async getGlobalChats(@Param('room') room: string) {
+    return this.chatService.getGlobalChats(room);
+  }
 }

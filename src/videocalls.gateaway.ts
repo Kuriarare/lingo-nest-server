@@ -9,6 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { ChatsRepository } from './chat/chats.repository';
 import { Chat } from './chat/entities/chat.entity';
 import { Injectable, Scope } from '@nestjs/common';
+import { GlobalChat } from './chat/entities/global-chat.entity';
 
 @Injectable({ scope: Scope.DEFAULT })
 @WebSocketGateway({
@@ -97,6 +98,37 @@ export class VideoCallsGateway
       this.server.to(data.room).emit('chat', chatData);
     } catch (err) {
       console.error('Error saving message:', err);
+    }
+  }
+
+  @SubscribeMessage('globalChat')
+  async handleGlobalChat(
+    socket: Socket,
+    data: {
+      username: string;
+      email: string;
+      room: string;
+      message: string;
+      userUrl?: string;
+    },
+  ) {
+    try {
+      // Create a new global chat message
+      const globalChatData = new GlobalChat();
+      globalChatData.username = data.username;
+      globalChatData.email = data.email;
+      globalChatData.room = data.room;
+      globalChatData.message = data.message;
+      globalChatData.timestamp = new Date();
+      if (data.userUrl) {
+        globalChatData.userUrl = data.userUrl;
+      }
+
+      await this.chatsRepository.saveGlobalChat(globalChatData);
+
+      this.server.to(data.room).emit('globalChat', globalChatData);
+    } catch (err) {
+      console.error('Error saving global chat message:', err);
     }
   }
 }
