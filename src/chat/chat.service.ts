@@ -13,4 +13,12 @@ export class ChatService {
   async getGlobalChats(room: string): Promise<GlobalChat[]> {
     return this.chatsRepositoy.getGlobalChats(room);
   }
+
+  async deleteGlobalChat(id: string): Promise<void> {
+    return this.chatsRepositoy.deleteGlobalChat(id);
+  }
+
+  async deleteNormalChat(id: string): Promise<void> {
+    return this.chatsRepositoy.deleteNormalChat(id);
+  }
 }

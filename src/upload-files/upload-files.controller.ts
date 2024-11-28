@@ -57,12 +57,25 @@ export class UploadController {
     }
 
     const allowedMimeTypes = [
-      'image/jpeg',
-      'image/png',
-      'application/pdf',
-      'audio/mpeg',
-      'audio/wav',
+      'image/jpeg', // .jpg, .jpeg
+      'image/png', // .png
+      'application/pdf', // .pdf
+      'audio/mpeg', // .mp3
+      'audio/wav', // .wav
+      'text/plain', // .txt
+      'application/msword', // .doc
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+      'application/vnd.ms-powerpoint', // .ppt
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+      'video/mp4', // .mp4
+      'audio/mp3', // .mp3
+      'video/x-msvideo', // .avi
+      'video/quicktime', // .mov
+      'application/zip', // .zip (for compressed files)
+      'application/vnd.ms-excel', // .xls
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
     ];
+
     if (!allowedMimeTypes.includes(file.mimetype)) {
       throw new HttpException(
         'File type not supported',

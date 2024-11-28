@@ -66,4 +66,24 @@ export class ChatsRepository {
       throw new InternalServerErrorException('Failed to save global chat');
     }
   }
+
+  // Delete a global chat message
+  async deleteGlobalChat(id: string): Promise<void> {
+    try {
+      await this.globalChatRepository.delete(id);
+    } catch (error) {
+      console.error('Error deleting global chat:', error);
+      throw new InternalServerErrorException('Failed to delete global chat');
+    }
+  }
+
+  // Delete a regular chat message
+  async deleteNormalChat(id: string): Promise<void> {
+    try {
+      await this.chatRepository.delete(id);
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+      throw new InternalServerErrorException('Failed to delete chat');
+    }
+  }
 }

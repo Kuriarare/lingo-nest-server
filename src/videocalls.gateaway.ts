@@ -61,16 +61,44 @@ export class VideoCallsGateway
     }
   }
 
-  @SubscribeMessage('screenSharing')
-  handleScreenSharing(
+  @SubscribeMessage('deleteGlobalChat')
+  async handleDeleteGlobalChat(
     socket: Socket,
-    data: { room: string; isScreenSharing: boolean; senderId: string },
+    data: { messageId: string; room: string },
   ) {
-    console.log(`Room: ${data.room}, Sender ID: ${data.senderId}`);
-    socket.broadcast.to(data.room).emit('screenSharing', {
-      isScreenSharing: data.isScreenSharing,
-      senderId: data.senderId,
-    });
+    try {
+      // Call repository to delete message
+      await this.chatsRepository.deleteGlobalChat(data.messageId);
+
+      console.log(`Message ${data.messageId} deleted successfully`);
+
+      // Notify all users in the room that the message has been deleted
+      this.server
+        .to(data.room)
+        .emit('globalChatDeleted', { messageId: data.messageId });
+    } catch (err) {
+      console.error('Error deleting global chat message:', err);
+    }
+  }
+
+  @SubscribeMessage('deleteNormalChat')
+  async handleDeleteNormalChat(
+    socket: Socket,
+    data: { messageId: string; room: string },
+  ) {
+    try {
+      // Call repository to delete message
+      await this.chatsRepository.deleteNormalChat(data.messageId);
+
+      console.log(`Message ${data.messageId} deleted successfully`);
+
+      // Notify all users in the room that the message has been deleted
+      this.server
+        .to(data.room)
+        .emit('normalChatDeleted', { messageId: data.messageId });
+    } catch (err) {
+      console.error('Error deleting global chat message:', err);
+    }
   }
 
   @SubscribeMessage('chat')
