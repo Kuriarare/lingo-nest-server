@@ -18,7 +18,7 @@ export class ChatCleanupService {
   @Cron('0 0 * * *')
   async archiveOldMessages() {
     const fiveMonthsAgo = new Date();
-    fiveMonthsAgo.setMonth(fiveMonthsAgo.getMonth() - 3);
+    fiveMonthsAgo.setMonth(fiveMonthsAgo.getMonth() - 2);
 
     // Fetch messages older than 3 months
     const oldMessages = await this.chatRepository.find({
