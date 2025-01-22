@@ -5,9 +5,10 @@ import { ChatsRepository } from './chats.repository';
 import { Chat } from './entities/chat.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GlobalChat } from './entities/global-chat.entity';
+import { UnreadGlobalMessage } from './entities/unread-global-messages.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Chat, GlobalChat])],
+  imports: [TypeOrmModule.forFeature([Chat, GlobalChat, UnreadGlobalMessage])],
   controllers: [ChatController],
   providers: [ChatService, ChatsRepository],
   exports: [ChatsRepository],

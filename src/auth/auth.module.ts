@@ -10,9 +10,20 @@ import { Chat } from 'src/chat/entities/chat.entity';
 import { ChatsRepository } from 'src/chat/chats.repository';
 import { MailService } from 'src/mail/mail.service';
 import { GlobalChat } from 'src/chat/entities/global-chat.entity';
+import { UsersModule } from 'src/users/users.module';
+import { UnreadGlobalMessage } from 'src/chat/entities/unread-global-messages.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Schedule, Chat, GlobalChat])],
+  imports: [
+    TypeOrmModule.forFeature([
+      User,
+      Schedule,
+      Chat,
+      GlobalChat,
+      UnreadGlobalMessage,
+    ]),
+    UsersModule,
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,

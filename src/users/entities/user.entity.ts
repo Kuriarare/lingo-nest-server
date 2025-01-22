@@ -1,3 +1,4 @@
+import { UnreadGlobalMessage } from 'src/chat/entities/unread-global-messages.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -77,6 +78,9 @@ export class User {
   })
   @JoinColumn({ name: 'teacherId' })
   teacher: User;
+
+  @OneToMany(() => UnreadGlobalMessage, (unreadMessage) => unreadMessage.user)
+  unreadMessages: UnreadGlobalMessage[];
 }
 
 @Entity('schedules')

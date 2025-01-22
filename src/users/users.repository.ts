@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Schedule, User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager } from 'typeorm';
+// import { EntityManager } from 'typeorm';
 import { In } from 'typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { UnreadGlobalMessage } from 'src/chat/entities/unread-global-messages.entity';
 
 @Injectable()
 export class UsersRepository {
@@ -14,6 +15,9 @@ export class UsersRepository {
 
     @InjectRepository(Schedule)
     private readonly scheduleRepository: Repository<Schedule>,
+
+    @InjectRepository(UnreadGlobalMessage)
+    private readonly unReadGlobalMessageRepo: Repository<UnreadGlobalMessage>,
   ) {}
 
   async findByEmail(email: string): Promise<User | undefined> {
@@ -124,11 +128,15 @@ export class UsersRepository {
   }
 
   async remove(email: string): Promise<any> {
-    const deletedUser = await this.usersRepository.delete({ email });
+    const user = await this.usersRepository.findOne({ where: { email } });
 
-    if (!deletedUser.affected) {
+    if (!user) {
       return 'no user found';
     }
+    await this.unReadGlobalMessageRepo.delete({
+      user: { id: user.id },
+    });
+    const deletedUser = await this.usersRepository.delete({ email });
     return deletedUser;
   }
 
@@ -231,4 +239,12 @@ export class UsersRepository {
         'Students removed from teacher successfully, and schedules deleted.',
     };
   }
+
+  async find() {
+    return await this.usersRepository.find();
+  }
+
+  // async saveInUnreadMessagesEnt() {
+  //   return await this.usersRepository.save();
+  // }
 }
