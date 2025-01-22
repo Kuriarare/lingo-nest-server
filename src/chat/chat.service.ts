@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Chat } from './entities/chat.entity';
 import { ChatsRepository } from './chats.repository';
 import { GlobalChat } from './entities/global-chat.entity';
+import { UnreadGlobalMessage } from './entities/unread-global-messages.entity';
+import { DeleteUnreadDto } from './dtos/delete-unread-dto';
 
 @Injectable()
 export class ChatService {
@@ -20,5 +22,16 @@ export class ChatService {
 
   async deleteNormalChat(id: string): Promise<void> {
     return this.chatsRepositoy.deleteNormalChat(id);
+  }
+
+  async getUnreadGlobalMessages(id: string): Promise<UnreadGlobalMessage[]> {
+    return this.chatsRepositoy.getUnreadGlobalMessages(id);
+  }
+
+  async deleteUnreadGlobalMessages(
+    userId: string,
+    room: string,
+  ): Promise<string> {
+    return this.chatsRepositoy.deleteUnreadGlobalMessages(userId, room);
   }
 }

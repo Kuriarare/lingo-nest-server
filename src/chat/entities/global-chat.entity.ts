@@ -3,7 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  // OneToMany,
 } from 'typeorm';
+// import { UnreadGlobalMessage } from './unread-global-messages.entity';
 
 @Entity('global-chats')
 export class GlobalChat {
@@ -28,6 +30,15 @@ export class GlobalChat {
   @Column({ type: 'varchar', length: 255, nullable: true })
   userUrl?: string;
 
+  @Column({ default: 0 })
+  unreadCount: number;
+
   @CreateDateColumn({ type: 'timestamp' })
   timestamp: Date;
+
+  // @OneToMany(
+  //   () => UnreadGlobalMessage,
+  //   (unreadMessage) => unreadMessage.message,
+  // )
+  // unreadMessages: UnreadGlobalMessage[];
 }

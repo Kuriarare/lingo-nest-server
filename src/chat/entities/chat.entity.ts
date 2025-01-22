@@ -28,6 +28,9 @@ export class Chat {
   @Column({ type: 'varchar', length: 255, nullable: true })
   userUrl?: string;
 
+  @Column({ default: 0 })
+  unreadCount: number;
+
   @CreateDateColumn({ type: 'timestamp' })
   timestamp: Date;
 }
