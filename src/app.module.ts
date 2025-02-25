@@ -11,9 +11,11 @@ import { UsersModule } from './users/users.module';
 import { UploadFilesModule } from './upload-files/upload-files.module';
 import { MailModule } from './mail/mail.module';
 import mailConfig from './config/mail.config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [TypeOrmConfig, mailConfig],

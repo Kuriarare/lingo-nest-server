@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { DeleteUnreadDto } from './dtos/delete-unread-dto';
+import { ReadChatDto } from './dtos/read-chat-dto';
 
 @Controller('chat')
 export class ChatController {
@@ -9,6 +10,12 @@ export class ChatController {
   @Get('messages/:room')
   async getChats(@Param('room') room: string) {
     return this.chatService.getChats(room);
+  }
+
+  @Patch('read-chat')
+  async readChat(@Body() body: ReadChatDto) {
+    const { room, email } = body;
+    return this.chatService.readChat(room, email);
   }
 
   @Get('global-chats/:room')
