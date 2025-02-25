@@ -30,6 +30,7 @@ dotenvConfig({ path: '.env.development' });
           adapter: new EjsAdapter({ inlineCssEnabled: true }),
           options: {
             strict: false,
+            cache: false,
           },
         },
       }),
