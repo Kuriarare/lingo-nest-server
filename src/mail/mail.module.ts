@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { config as dotenvConfig } from 'dotenv';
-dotenvConfig({ path: '.env.development' });
+dotenvConfig({ path: '.env.development.development' });
 
 @Global()
 @Module({

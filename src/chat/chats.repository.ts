@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -9,7 +8,6 @@ import { Repository } from 'typeorm';
 import { Chat } from './entities/chat.entity';
 import { GlobalChat } from './entities/global-chat.entity';
 import { UnreadGlobalMessage } from './entities/unread-global-messages.entity';
-import { DeleteUnreadDto } from './dtos/delete-unread-dto';
 
 @Injectable()
 export class ChatsRepository {
@@ -25,14 +23,12 @@ export class ChatsRepository {
   // Get regular chats for a specific room
   async getChats(room: string): Promise<Chat[]> {
     try {
-      const chats = await this.chatRepository
+      return await this.chatRepository
         .createQueryBuilder('chat')
         .where('chat.room = :room', { room })
         .orderBy('chat.timestamp', 'DESC')
         .take(50)
         .getMany();
-
-      return chats;
     } catch (error) {
       console.error('Error fetching chats:', error);
       throw new InternalServerErrorException('Failed to fetch chats');
@@ -42,14 +38,12 @@ export class ChatsRepository {
   // Get global chats for a specific room
   async getGlobalChats(room: string): Promise<GlobalChat[]> {
     try {
-      const chats = await this.globalChatRepository
+      return await this.globalChatRepository
         .createQueryBuilder('globalChat')
         .where('globalChat.room = :room', { room })
         .orderBy('globalChat.timestamp', 'DESC')
         .take(50)
         .getMany();
-
-      return chats;
     } catch (error) {
       console.error('Error fetching global chats:', error);
       throw new InternalServerErrorException('Failed to fetch global chats');
@@ -102,12 +96,10 @@ export class ChatsRepository {
 
   async getUnreadGlobalMessages(id: string): Promise<UnreadGlobalMessage[]> {
     try {
-      const unreadMessages = await this.unreadGlobalChatRepository
+      return await this.unreadGlobalChatRepository
         .createQueryBuilder('unreadGlobalMessage')
         .where('unreadGlobalMessage.userId = :id', { id })
-        .getMany(); // Fetch multiple results
-
-      return unreadMessages;
+        .getMany();
     } catch (error) {
       console.error('Error fetching unread messages:', error);
       throw new InternalServerErrorException('Failed to fetch unread messages');
@@ -121,9 +113,6 @@ export class ChatsRepository {
     if (!userId || !room) {
       throw new NotFoundException('userId and room are required');
     }
-
-    console.log('userId:', userId);
-    console.log('room:', room);
 
     // Mapeo de las IDs de las rooms con las columnas correspondientes
     const roomMappings = {

@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { Schedule, User } from 'src/users/entities/user.entity';
@@ -12,6 +12,7 @@ import { MailService } from 'src/mail/mail.service';
 import { GlobalChat } from 'src/chat/entities/global-chat.entity';
 import { UsersModule } from 'src/users/users.module';
 import { UnreadGlobalMessage } from 'src/chat/entities/unread-global-messages.entity';
+import { ChatModule } from '../chat/chat.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UnreadGlobalMessage } from 'src/chat/entities/unread-global-messages.en
       UnreadGlobalMessage,
     ]),
     UsersModule,
+    ChatModule,
   ],
   controllers: [AuthController],
   providers: [
