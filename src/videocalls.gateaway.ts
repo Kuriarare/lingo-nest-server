@@ -10,8 +10,14 @@ import { ChatsRepository } from './chat/chats.repository';
 import { Chat } from './chat/entities/chat.entity';
 import { Injectable, Scope } from '@nestjs/common';
 import { GlobalChat } from './chat/entities/global-chat.entity';
-import { UnreadGlobalMessage } from './chat/entities/unread-global-messages.entity';
-import { UsersRepository } from './users/users.repository';
+import {
+  CounterStrategy,
+  generalLanguageStrategy,
+  randomRoomStrategy,
+  teacherLanguageStrategy,
+} from './chat/strategies/counter-strategies';
+import { UnreadCounterService } from './chat/unread-counter.service';
+import { CounterField } from './chat/types';
 
 @Injectable({ scope: Scope.DEFAULT })
 @WebSocketGateway({
@@ -22,11 +28,20 @@ import { UsersRepository } from './users/users.repository';
 export class VideoCallsGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
+  private readonly counterStrategies: CounterStrategy[] = [
+    generalLanguageStrategy,
+    teacherLanguageStrategy,
+    randomRoomStrategy,
+  ];
+  private readonly validLanguages = new Set(['english', 'spanish', 'polish']);
+  private readonly uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
   @WebSocketServer() server: Server;
 
   constructor(
     private readonly chatsRepository: ChatsRepository,
-    private readonly usersRepository: UsersRepository,
+    private readonly unreadCounterService: UnreadCounterService,
   ) {}
 
   handleConnection(socket: Socket) {
@@ -41,10 +56,12 @@ export class VideoCallsGateway
     const { id, name } = user;
     this.server.emit('userStatus', { id: id, online: 'online', name: name });
   }
+
   notifyUserOffline(user: any) {
     const { id, name } = user;
     this.server.emit('userStatus', { id: id, online: 'offline', name: name });
   }
+
   @SubscribeMessage('join')
   handleJoinRoom(socket: Socket, data: { username: string; room: string }) {
     try {
@@ -174,120 +191,64 @@ export class VideoCallsGateway
       }
       await this.chatsRepository.saveGlobalChat(globalChatData);
 
-      // Fetch all users and filter them based on the room and conditions
-      const allUsers = await this.chatsRepository.findAllUsers();
-      const senderEmail = data.email;
+      // 2. Actualizar contadores usando estrategias
+      const strategy = this.counterStrategies.find((s) =>
+        s.roomPattern.test(data.room),
+      );
 
-      const updates = [];
-
-      for (const user of allUsers) {
-        if (user.user.email === senderEmail) {
-          continue;
-        }
-
-        const updateData: Partial<UnreadGlobalMessage> = {};
-
-        switch (data.room) {
-          case 'uuid-english':
-            if (
-              user.user.language === 'english' ||
-              user.user.role === 'admin'
-            ) {
-              updateData.generalEnglishRoom =
-                (user.generalEnglishRoom || 0) + 1;
-            }
-            break;
-          case 'uuid-spanish':
-            if (
-              user.user.language === 'spanish' ||
-              user.user.role === 'admin'
-            ) {
-              updateData.generalSpanishRoom =
-                (user.generalSpanishRoom || 0) + 1;
-            }
-            break;
-          case 'uuid-polish':
-            if (user.user.language === 'polish' || user.user.role === 'admin') {
-              updateData.generalPolishRoom = (user.generalPolishRoom || 0) + 1;
-            }
-            break;
-          case 'uuid-teacher-english':
-            if (
-              (user.user.language === 'english' &&
-                user.user.role === 'teacher') ||
-              user.user.role === 'admin'
-            ) {
-              updateData.teachersEnglishRoom =
-                (user.teachersEnglishRoom || 0) + 1;
-            }
-            break;
-          case 'uuid-teacher-spanish':
-            if (
-              (user.user.language === 'spanish' &&
-                user.user.role === 'teacher') ||
-              user.user.role === 'admin'
-            ) {
-              updateData.teachersSpanishRoom =
-                (user.teachersSpanishRoom || 0) + 1;
-            }
-            break;
-          case 'uuid-teacher-polish':
-            if (
-              (user.user.language === 'polish' &&
-                user.user.role === 'teacher') ||
-              user.user.role === 'admin'
-            ) {
-              updateData.teachersPolishRoom =
-                (user.teachersPolishRoom || 0) + 1;
-            }
-            break;
-          default:
-            // Check if the room matches the teacher's ID (for students) or the user's own ID (for teachers)
-            if (data.room) {
-              // Increment for students whose teacher matches the room ID
-              if (
-                user.user.role === 'user' &&
-                user.user.teacher &&
-                data.room === user.user.teacher.id
-              ) {
-                console.log(
-                  'we enter inside the rich student',
-                  user.user.teacher.id,
-                );
-                updateData.randomRoom = (user.randomRoom || 0) + 1;
-              }
-
-              // Increment for teachers whose ID matches the room
-              if (user.user.role === 'teacher' && data.room === user.user.id) {
-                console.log('we enter inside the rich teacher', user.user.id);
-                updateData.randomRoom = (user.randomRoom || 0) + 1;
-              }
-            }
-            break;
-        }
-
-        if (Object.keys(updateData).length > 0) {
-          updates.push({
-            ...user,
-            ...updateData,
-          });
-        }
+      if (strategy) {
+        const counterField = this.getCounterField(data.room);
+        await this.unreadCounterService.bulkIncrementCounter(
+          counterField,
+          (qb) => strategy.applyConditions(qb, data.room),
+          data.email,
+        );
       }
-
-      // Save the updated unread messages in bulk
-      if (updates.length > 0) {
-        for (const update of updates) {
-          await this.chatsRepository.saveUnreadMessage(update);
-        }
-      }
-
-      // Emit the message to the users in the room
+      // Emitir eventos
       this.server.to(data.room).emit('globalChat', globalChatData);
-
-      // Emit a global notification to all users (including those outside the room)
       socket.broadcast.emit('newUnreadGlobalMessage', { room: data.room });
     } catch (err) {
       console.error('Error saving global chat message:', err);
     }
+  }
+
+  private getCounterField(room: string): CounterField {
+    if (room.startsWith('uuid-teacher-')) {
+      const lang = room.split('-')[2];
+      return `teachers${this.capitalize(lang)}Room` as CounterField;
+    }
+    if (room.startsWith('uuid-')) {
+      const lang = room.split('-')[1];
+      return `general${this.capitalize(lang)}Room` as CounterField;
+    }
+    return 'randomRoom';
+  }
+
+  private capitalize(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  private parseId(input: string): {
+    id?: string;
+    role?: string;
+    language?: string;
+  } {
+    if (this.isValidUUID(input)) {
+      return { id: input };
+    }
+    if (input.startsWith('uuid-')) {
+      const suffix = input.slice(5);
+      const parts = suffix.split('-');
+      if (parts.length === 1) {
+        return { language: parts[0] };
+      }
+      if (parts.length === 2) {
+        return { role: parts[0], language: parts[1] };
+      }
+    }
+  }
+
+  private isValidUUID(uuid: string): boolean {
+    return this.uuidRegex.test(uuid);
   }
 }
