@@ -45,23 +45,20 @@ export class VideoCallsGateway
   ) {}
 
   handleConnection(socket: Socket) {
-    console.log('A user connected:', socket.id);
+    // console.log('A user connected:', socket.id);
   }
 
   handleDisconnect(socket: Socket) {
-    console.log(`User disconnected: ${socket.id}`);
+    // console.log(`User disconnected: ${socket.id}`);
   }
 
   notifyUserOnline(user: any) {
     const { id, name } = user;
-    console.log(`User ${id} is now online`);
     this.server.emit('userStatus', { id: id, online: 'online', name: name });
   }
 
   notifyUserOffline(user: any) {
     const { id, name } = user;
-
-    console.log(`User ${id} is now offline`);
     this.server.emit('userStatus', { id: id, online: 'offline', name: name });
   }
 
@@ -164,6 +161,7 @@ export class VideoCallsGateway
       }
       await this.chatsRepository.saveChat(chatData);
       this.server.to(data.room).emit('chat', chatData);
+      socket.broadcast.emit('newChat', { room: data.room });
     } catch (err) {
       console.error('Error saving message:', err);
     }

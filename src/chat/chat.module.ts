@@ -6,6 +6,7 @@ import { Chat } from './entities/chat.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GlobalChat } from './entities/global-chat.entity';
 import { UnreadGlobalMessage } from './entities/unread-global-messages.entity';
+
 import { UnreadCounterService } from './unread-counter.service';
 import {
   generalLanguageStrategy,
@@ -13,13 +14,26 @@ import {
   teacherLanguageStrategy,
 } from './strategies/counter-strategies';
 
+import { ArchivedChat } from './entities/archived-chat.entity';
+import { ChatCleanupService } from './clean-chat.service';
+
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Chat, GlobalChat, UnreadGlobalMessage])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Chat,
+      GlobalChat,
+      UnreadGlobalMessage,
+      ArchivedChat,
+    ]),
+  ],
   controllers: [ChatController],
+
   providers: [
     ChatService,
     ChatsRepository,
     UnreadCounterService,
+    ChatCleanupService
     UnreadGlobalMessage,
     {
       provide: 'COUNTER_STRATEGIES',
@@ -31,5 +45,6 @@ import {
     },
   ],
   exports: [ChatsRepository, UnreadCounterService, 'COUNTER_STRATEGIES'],
+
 })
 export class ChatModule {}

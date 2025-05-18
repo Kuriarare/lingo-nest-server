@@ -12,6 +12,10 @@ export class ChatService {
     return this.chatsRepositoy.getChats(room);
   }
 
+  async readChat(room: string, email: string): Promise<void> {
+    return this.chatsRepositoy.readChat(room, email);
+  }
+
   async getGlobalChats(room: string): Promise<GlobalChat[]> {
     return this.chatsRepositoy.getGlobalChats(room);
   }

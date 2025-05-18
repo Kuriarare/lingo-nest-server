@@ -35,6 +35,22 @@ export class ChatsRepository {
     }
   }
 
+  // Mark all messages as read for a specific room
+  async readChat(room: string, email: string): Promise<void> {
+    try {
+      await this.chatRepository
+        .createQueryBuilder()
+        .update(Chat)
+        .set({ unread: false })
+        .where('room = :room', { room })
+        .andWhere('email != :email', { email })
+        .execute();
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+      throw new InternalServerErrorException('Failed to mark messages as read');
+    }
+  }
+
   // Get global chats for a specific room
   async getGlobalChats(room: string): Promise<GlobalChat[]> {
     try {
