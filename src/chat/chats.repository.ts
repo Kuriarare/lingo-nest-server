@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Chat } from './entities/chat.entity';
 import { GlobalChat } from './entities/global-chat.entity';
 import { UnreadGlobalMessage } from './entities/unread-global-messages.entity';
+import { ArchivedChat } from './entities/archived-chat.entity';
 
 @Injectable()
 export class ChatsRepository {
@@ -18,6 +19,8 @@ export class ChatsRepository {
     private readonly globalChatRepository: Repository<GlobalChat>,
     @InjectRepository(UnreadGlobalMessage)
     private readonly unreadGlobalChatRepository: Repository<UnreadGlobalMessage>,
+    @InjectRepository(ArchivedChat)
+    private readonly archivedChatRepository: Repository<ArchivedChat>,
   ) {}
 
   // Get regular chats for a specific room
@@ -187,5 +190,23 @@ export class ChatsRepository {
         },
       },
     });
+  }
+
+  async getArchivedChats(
+    room: string,
+    page: number,
+  ): Promise<ArchivedChat[]> {
+    try {
+      return await this.archivedChatRepository
+        .createQueryBuilder('archived_chats')
+        .where('archived_chats.room = :room', { room })
+        .orderBy('archived_chats.timestamp', 'DESC')
+        .take(50)
+        .skip((page - 1) * 50)
+        .getMany();
+    } catch (error) {
+      console.error('Error fetching archived chats:', error);
+      throw new InternalServerErrorException('Failed to fetch archived chats');
+    }
   }
 }

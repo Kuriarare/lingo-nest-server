@@ -1,7 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Query,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { DeleteUnreadDto } from './dtos/delete-unread-dto';
 import { ReadChatDto } from './dtos/read-chat-dto';
+import { GetArchivedChatsDto } from './dtos/get-archived-chats.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -42,5 +51,13 @@ export class ChatController {
   async deleteUnreadGlobalMessages(@Body() body: DeleteUnreadDto) {
     const { room, userId } = body;
     return this.chatService.deleteUnreadGlobalMessages(userId, room);
+  }
+
+  @Get('archived-messages/:room')
+  async getArchivedChats(
+    @Param('room') room: string,
+    @Query() query: GetArchivedChatsDto,
+  ) {
+    return this.chatService.getArchivedChats(room, query.page);
   }
 }

@@ -19,9 +19,6 @@ import { ChatModule } from '../chat/chat.module';
     TypeOrmModule.forFeature([
       User,
       Schedule,
-      Chat,
-      GlobalChat,
-      UnreadGlobalMessage,
     ]),
     UsersModule,
     ChatModule,
@@ -32,7 +29,6 @@ import { ChatModule } from '../chat/chat.module';
     UsersRepository,
     ScheduleRepository,
     VideoCallsGateway,
-    ChatsRepository,
     MailService,
   ],
 })

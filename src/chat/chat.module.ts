@@ -44,7 +44,12 @@ import { ChatCleanupService } from './clean-chat.service';
       },
     },
   ],
-  exports: [ChatsRepository, UnreadCounterService, 'COUNTER_STRATEGIES'],
+  exports: [
+    ChatsRepository,
+    UnreadCounterService,
+    'COUNTER_STRATEGIES',
+    TypeOrmModule,
+  ],
 
 })
 export class ChatModule {}

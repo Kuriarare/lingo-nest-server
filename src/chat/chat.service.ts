@@ -4,6 +4,7 @@ import { ChatsRepository } from './chats.repository';
 import { GlobalChat } from './entities/global-chat.entity';
 import { UnreadGlobalMessage } from './entities/unread-global-messages.entity';
 import { DeleteUnreadDto } from './dtos/delete-unread-dto';
+import { ArchivedChat } from './entities/archived-chat.entity';
 
 @Injectable()
 export class ChatService {
@@ -37,5 +38,12 @@ export class ChatService {
     room: string,
   ): Promise<string> {
     return this.chatsRepositoy.deleteUnreadGlobalMessages(userId, room);
+  }
+
+  async getArchivedChats(
+    room: string,
+    page: number,
+  ): Promise<ArchivedChat[]> {
+    return this.chatsRepositoy.getArchivedChats(room, page);
   }
 }
