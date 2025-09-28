@@ -33,7 +33,7 @@ import { ChatCleanupService } from './clean-chat.service';
     ChatService,
     ChatsRepository,
     UnreadCounterService,
-    ChatCleanupService
+    ChatCleanupService,
     UnreadGlobalMessage,
     {
       provide: 'COUNTER_STRATEGIES',
