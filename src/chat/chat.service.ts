@@ -46,4 +46,9 @@ export class ChatService {
   ): Promise<ArchivedChat[]> {
     return this.chatsRepositoy.getArchivedChats(room, page);
   }
+  async deleteChatsByRoom(
+    room: string,
+  ): Promise<{ chatsDeleted: number; archivedChatsDeleted: number }> {
+    return this.chatsRepositoy.deleteChatsByRoom(room);
+  }
 }

@@ -28,6 +28,7 @@ export class UsersRepository {
         'teacher',
         'studentSchedules',
         'teacherSchedules',
+        'settings',
       ],
     });
   }
@@ -40,6 +41,7 @@ export class UsersRepository {
         'teacher',
         'studentSchedules',
         'teacherSchedules',
+        'settings',
       ],
     });
   }
@@ -56,6 +58,7 @@ export class UsersRepository {
         'teacher',
         'studentSchedules',
         'teacherSchedules',
+        'settings',
       ],
     });
     if (user && (await bcrypt.compare(password, user.password))) {
@@ -74,6 +77,7 @@ export class UsersRepository {
         'teacher',
         'studentSchedules',
         'teacherSchedules',
+        'settings',
       ],
     });
 
@@ -162,6 +166,7 @@ export class UsersRepository {
         'teacher',
         'studentSchedules',
         'teacherSchedules',
+        'settings',
       ],
     });
 
@@ -207,9 +212,7 @@ export class UsersRepository {
     });
     const idsToDelete = deleteResult.map((schedule) => schedule.id); // Get all the IDs to delete
     if (idsToDelete.length > 0) {
-      console.log('This is the Schedule id', idsToDelete);
       await this.scheduleRepository.delete(idsToDelete); // Directly delete by IDs
-      console.log('Schedules deleted');
     }
     // else {
     //   throw new Error('No schedules found to delete.');
@@ -218,7 +221,6 @@ export class UsersRepository {
     // if (deleteResult.affected === 0) {
     //   throw new Error('No schedules were deleted. Rolling back.');
     // }
-    // console.log(deleteResult);
 
     // Remove each student from the teacher's students array
     teacher.students = teacher.students.filter(

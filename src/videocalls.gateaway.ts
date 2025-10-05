@@ -65,27 +65,21 @@ export class VideoCallsGateway
   @SubscribeMessage('join')
   handleJoinRoom(socket: Socket, data: { username: string; room: string }) {
     try {
-      console.log(`User ${data.username} attempting to join room ${data.room}`);
 
       // Dejar todas las habitaciones excepto la predeterminada (propia del socket)
       const rooms = Array.from(socket.rooms); // Obtén todas las salas a las que pertenece el socket
       rooms.forEach((room) => {
         if (room !== socket.id) {
           socket.leave(room); // Abandona cualquier sala que no sea la propia
-          console.log(`User ${data.username} left room ${room}`);
         }
       });
 
       // Unirse a la nueva sala
       socket.join(data.room);
-      console.log(
-        `User ${data.username} successfully joined room ${data.room}`,
-      );
 
       // Notificar a los usuarios de la nueva sala
       socket.broadcast.to(data.room).emit('ready', { username: data.username });
     } catch (err) {
-      console.error('Error joining room:', err);
     }
   }
 
@@ -95,7 +89,6 @@ export class VideoCallsGateway
     if (['offer', 'answer', 'candidate'].includes(type)) {
       socket.broadcast.to(room).emit('data', data);
     } else {
-      console.warn('Received unknown data type:', type);
     }
   }
 
@@ -108,14 +101,12 @@ export class VideoCallsGateway
       // Call repository to delete message
       await this.chatsRepository.deleteGlobalChat(data.messageId);
 
-      console.log(`Message ${data.messageId} deleted successfully`);
 
       // Notify all users in the room that the message has been deleted
       this.server
         .to(data.room)
         .emit('globalChatDeleted', { messageId: data.messageId });
     } catch (err) {
-      console.error('Error deleting global chat message:', err);
     }
   }
 
@@ -128,13 +119,11 @@ export class VideoCallsGateway
       // Call repository to delete message
       await this.chatsRepository.deleteNormalChat(data.messageId);
 
-      console.log(`Message ${data.messageId} deleted successfully`);
 
       this.server
         .to(data.room)
         .emit('normalChatDeleted', { messageId: data.messageId });
     } catch (err) {
-      console.error('Error deleting global chat message:', err);
     }
   }
 
@@ -163,7 +152,6 @@ export class VideoCallsGateway
       this.server.to(data.room).emit('chat', chatData);
       socket.broadcast.emit('newChat', { room: data.room });
     } catch (err) {
-      console.error('Error saving message:', err);
     }
   }
 
@@ -208,7 +196,6 @@ export class VideoCallsGateway
       this.server.to(data.room).emit('globalChat', globalChatData);
       socket.broadcast.emit('newUnreadGlobalMessage', { room: data.room });
     } catch (err) {
-      console.error('Error saving global chat message:', err);
     }
   }
 

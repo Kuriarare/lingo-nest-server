@@ -36,7 +36,6 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   async update(@Body() updateUser: any) {
     const updatedUser = await this.usersService.update(updateUser);
-    console.log(updatedUser);
     return updatedUser;
   }
 
@@ -47,10 +46,15 @@ export class UsersController {
     return this.usersService.remove(email);
   }
 
+  @Post('add-event')
+  @HttpCode(HttpStatus.OK)
+  addEvent(@Body() body: any) {
+    return this.usersService.addEvent(body);
+  }
+
   @Post('removeStudentsFromTeacher')
   @HttpCode(HttpStatus.OK)
   removeStudentsFromTeacher(@Body() body: any) {
-    console.log(body);
     return this.usersService.removeStudentsFromTeacher(body);
   }
 
@@ -58,5 +62,12 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   async modifySchedule(@Body() body: any) {
     return this.usersService.modifySchedule(body);
+  }
+  @Post('removeEvents')
+  @HttpCode(HttpStatus.OK)
+  removeEvents(
+    @Body() body: { eventIds: string[]; teacherId: string; studentId: string },
+  ) {
+    return this.usersService.removeEvents(body);
   }
 }

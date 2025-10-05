@@ -60,4 +60,12 @@ export class ChatController {
   ) {
     return this.chatService.getArchivedChats(room, query.page);
   }
+  @Delete('delete-chats-by-student/:studentId')
+  async deleteChatsByStudent(@Param('studentId') studentId: string) {
+    const result = await this.chatService.deleteChatsByRoom(studentId);
+    return {
+      message: 'Chats deleted successfully',
+      ...result,
+    };
+  }
 }

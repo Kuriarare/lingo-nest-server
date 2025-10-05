@@ -42,7 +42,6 @@ export class S3Service {
         url: publicUrl,
       };
     } catch (error) {
-      console.error(error);
       throw new Error('Error al subir archivo a S3');
     }
   }
@@ -70,7 +69,6 @@ export class S3Service {
         url: publicUrl,
       };
     } catch (error) {
-      console.error(error);
       throw new Error('Error uploading file to S3');
     }
   }

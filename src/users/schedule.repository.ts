@@ -31,4 +31,24 @@ export class ScheduleRepository {
     await this.repository.save(schedule);
     return true;
   }
+  async removeEvents(body: {
+    eventIds: string[];
+    teacherId: string;
+    studentId: string;
+  }): Promise<boolean> {
+    const { eventIds, teacherId, studentId } = body;
+    const result = await this.repository
+      .createQueryBuilder()
+      .delete()
+      .from(Schedule)
+      .where('id IN (:...eventIds)', { eventIds })
+      .andWhere('teacherId = :teacherId', { teacherId })
+      .andWhere('studentId = :studentId', { studentId })
+      .execute();
+
+    if (result.affected === 0) {
+      throw new NotFoundException('Events not found');
+    }
+    return true;
+  }
 }

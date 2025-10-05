@@ -75,9 +75,10 @@ export class AuthService {
       id: foundUser.id,
       name: foundUser.name + ' ' + foundUser.lastName,
     });
-    const userPayload = { email: foundUser.email, id: foundUser.id };
+    const userWithSettings = await this.usersRepository.findByEmail(email);
+    const userPayload = { email: userWithSettings.email, id: userWithSettings.id };
     const token = this.jwtService.sign(userPayload);
-    return { token, user: foundUser };
+    return { token, user: userWithSettings };
   }
 
   async logout(userId: string) {
@@ -110,7 +111,6 @@ export class AuthService {
     );
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-    console.log('resetUrl', resetUrl);
 
     await this.mailService.sendUserResetPasswordEmail(
       foundUser.name,

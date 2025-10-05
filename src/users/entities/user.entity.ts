@@ -6,7 +6,9 @@ import {
   OneToMany,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
+import { Settings } from './settings.entity';
 
 @Entity('users')
 export class User {
@@ -81,6 +83,9 @@ export class User {
 
   @OneToMany(() => UnreadGlobalMessage, (unreadMessage) => unreadMessage.user)
   unreadMessages: UnreadGlobalMessage[];
+
+  @OneToOne(() => Settings, (settings) => settings.user, { cascade: true })
+  settings: Settings;
 }
 
 @Entity('schedules')

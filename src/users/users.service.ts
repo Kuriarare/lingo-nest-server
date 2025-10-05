@@ -57,4 +57,28 @@ export class UsersService {
     }
     return 'success';
   }
+  async removeEvents(body: {
+    eventIds: string[];
+    teacherId: string;
+    studentId: string;
+  }) {
+    const success = await this.scheduleRepository.removeEvents(body);
+    if (!success) {
+      throw new NotFoundException('Events not found');
+    }
+    return 'success';
+  }
+  async addEvent(event: any) {
+    const newEvent = {
+      ...event,
+      initialDateTime: new Date(event.initialDateTime),
+      startTime: new Date(event.startTime),
+      endTime: new Date(event.endTime),
+    };
+    const success = await this.scheduleRepository.save(newEvent);
+    if (!success) {
+      throw new NotFoundException('Failed to create event');
+    }
+    return 'success';
+  }
 }

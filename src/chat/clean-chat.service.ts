@@ -17,12 +17,12 @@ export class ChatCleanupService {
 
   @Cron('0 0 * * *')
   async archiveOldMessages() {
-    const fiveMonthsAgo = new Date();
-    fiveMonthsAgo.setMonth(fiveMonthsAgo.getMonth() - 2);
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-    // Fetch messages older than 3 months
+    // Fetch messages older than 1 month
     const oldMessages = await this.chatRepository.find({
-      where: { timestamp: LessThan(fiveMonthsAgo) },
+      where: { timestamp: LessThan(oneMonthAgo) },
     });
 
     // Insert old messages into the archive table
@@ -34,9 +34,18 @@ export class ChatCleanupService {
 
     // Delete archived messages from the main chat table
     await this.chatRepository.delete({
-      timestamp: LessThan(fiveMonthsAgo),
+      timestamp: LessThan(oneMonthAgo),
     });
+  }
 
-    console.log('Archived old messages successfully');
+  @Cron('0 1 * * *') // Runs daily at 1:00 AM
+  async deleteOldArchivedChats() {
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    // Delete archived chats older than one year
+    await this.archivedChatRepository.delete({
+      archivedAt: LessThan(oneYearAgo),
+    });
   }
 }

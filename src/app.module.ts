@@ -12,6 +12,7 @@ import { UploadFilesModule } from './upload-files/upload-files.module';
 import { MailModule } from './mail/mail.module';
 import mailConfig from './config/mail.config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     UsersModule,
     UploadFilesModule,
     MailModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

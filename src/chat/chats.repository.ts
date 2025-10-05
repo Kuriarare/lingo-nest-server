@@ -33,7 +33,6 @@ export class ChatsRepository {
         .take(50)
         .getMany();
     } catch (error) {
-      console.error('Error fetching chats:', error);
       throw new InternalServerErrorException('Failed to fetch chats');
     }
   }
@@ -49,7 +48,6 @@ export class ChatsRepository {
         .andWhere('email != :email', { email })
         .execute();
     } catch (error) {
-      console.error('Error marking messages as read:', error);
       throw new InternalServerErrorException('Failed to mark messages as read');
     }
   }
@@ -64,7 +62,6 @@ export class ChatsRepository {
         .take(50)
         .getMany();
     } catch (error) {
-      console.error('Error fetching global chats:', error);
       throw new InternalServerErrorException('Failed to fetch global chats');
     }
   }
@@ -74,7 +71,6 @@ export class ChatsRepository {
     try {
       return await this.chatRepository.save(chat);
     } catch (error) {
-      console.error('Error saving chat:', error);
       throw new InternalServerErrorException('Failed to save chat');
     }
   }
@@ -84,7 +80,6 @@ export class ChatsRepository {
     try {
       return await this.globalChatRepository.save(globalChat);
     } catch (error) {
-      console.error('Error saving global chat:', error);
       throw new InternalServerErrorException('Failed to save global chat');
     }
   }
@@ -94,7 +89,6 @@ export class ChatsRepository {
     try {
       await this.globalChatRepository.delete(id);
     } catch (error) {
-      console.error('Error deleting global chat:', error);
       throw new InternalServerErrorException('Failed to delete global chat');
     }
   }
@@ -104,7 +98,6 @@ export class ChatsRepository {
     try {
       await this.chatRepository.delete(id);
     } catch (error) {
-      console.error('Error deleting chat:', error);
       throw new InternalServerErrorException('Failed to delete chat');
     }
   }
@@ -120,7 +113,6 @@ export class ChatsRepository {
         .where('unreadGlobalMessage.userId = :id', { id })
         .getMany();
     } catch (error) {
-      console.error('Error fetching unread messages:', error);
       throw new InternalServerErrorException('Failed to fetch unread messages');
     }
   }
@@ -145,7 +137,6 @@ export class ChatsRepository {
 
     // Asignación de columna según el room mapeado
     let columnToUpdate = roomMappings[room];
-    console.log('columnToUpdate:', columnToUpdate);
 
     // Si la room no está en el mapeo, se asigna la columna por defecto 'randomRoom'
     if (!columnToUpdate) {
@@ -205,8 +196,34 @@ export class ChatsRepository {
         .skip((page - 1) * 50)
         .getMany();
     } catch (error) {
-      console.error('Error fetching archived chats:', error);
       throw new InternalServerErrorException('Failed to fetch archived chats');
+    }
+  }
+  // Delete all chats for a specific room
+  async deleteChatsByRoom(
+    room: string,
+  ): Promise<{ chatsDeleted: number; archivedChatsDeleted: number }> {
+    try {
+      const chatDeleteResult = await this.chatRepository
+        .createQueryBuilder()
+        .delete()
+        .from(Chat)
+        .where('room = :room', { room })
+        .execute();
+
+      const archivedChatDeleteResult = await this.archivedChatRepository
+        .createQueryBuilder()
+        .delete()
+        .from(ArchivedChat)
+        .where('room = :room', { room })
+        .execute();
+
+      return {
+        chatsDeleted: chatDeleteResult.affected || 0,
+        archivedChatsDeleted: archivedChatDeleteResult.affected || 0,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to delete chats');
     }
   }
 }
